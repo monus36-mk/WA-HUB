@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WA-Hub • Autonomous WhatsApp API & Marketing SaaS Platform</title>
+  <meta name="description" content="Self-hosted WhatsApp Automation & Marketing Platform with QR device pairing, bulk promotional campaigns, COD verification, and direct e-commerce integration.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="logo-icon-wrapper">
+          <svg class="wa-logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+          </svg>
+          <span class="pulse-ring"></span>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title-row">
+            <h1 class="brand-title">WA-Hub</h1>
+            <span class="badge-pro">PRO ENGINE</span>
+          </div>
+          <p class="brand-subtitle">WhatsApp Commerce & Anti-Ban Marketing Engine</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div id="connectionStatusBadge" class="status-pill status-connecting">
+          <span class="status-dot"></span>
+          <span id="connectionStatusText">Checking Status...</span>
+        </div>
+
+        <button id="btnRefreshStatus" class="btn-icon" title="Refresh Connection" aria-label="Refresh Status">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+          </svg>
+        </button>
+
+        <button id="btnLogout" class="btn-danger-outline" style="display: none;" title="Unlink WhatsApp Device">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+          </svg>
+          <span>Unlink Device</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <nav class="nav-menu" role="tablist">
+        <button class="nav-item active" data-tab="tab-device" role="tab" id="navTabDevice">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+            <line x1="12" y1="18" x2="12.01" y2="18"/>
+          </svg>
+          <span>Link Device</span>
+          <span id="navQrPill" class="nav-badge" style="display: none;">QR</span>
+        </button>
+
+        <button class="nav-item" data-tab="tab-ecommerce" role="tab" id="navTabEcommerce">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span>E-Commerce Triggers</span>
+          <span class="nav-tag">GoWhats</span>
+        </button>
+
+        <button class="nav-item" data-tab="tab-campaign" role="tab" id="navTabCampaign">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+          <span>Bulk Broadcaster</span>
+          <span class="nav-tag glow">Anti-Ban</span>
+        </button>
+
+        <button class="nav-item" data-tab="tab-send" role="tab" id="navTabSend">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+          <span>Quick Send & Media</span>
+        </button>
+
+        <button class="nav-item" data-tab="tab-inbox" role="tab" id="navTabInbox">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>Live Chat Logs</span>
+          <span id="inboxCountBadge" class="nav-count">0</span>
+        </button>
+
+        <button class="nav-item" data-tab="tab-api" role="tab" id="navTabApi">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"/>
+            <polyline points="8 6 2 12 8 18"/>
+          </svg>
+          <span>Developer API</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar Footer Stats -->
+      <div class="sidebar-stat-card">
+        <div class="stat-header">
+          <span class="stat-label">STORE INTEGRATION</span>
+          <span class="stat-active-indicator">READY</span>
+        </div>
+        <p class="stat-value">Paps Stationery</p>
+        <div class="stat-footer">
+          <span class="meta-fee-tag">₹0 Meta Fee Mode</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <section class="content-panel">
+      
+      <!-- TAB 1: DEVICE PAIRING / QR -->
+      <div id="tab-device" class="tab-pane active" role="tabpanel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">WhatsApp Device Connection</h2>
+            <p class="panel-desc">Pair your smartphone to send automated WhatsApp messages from your own number.</p>
+          </div>
+        </div>
+
+        <div class="pairing-method-selector">
+          <button id="btnMethodCode" class="method-btn active" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+              <line x1="12" y1="18" x2="12.01" y2="18"/>
+            </svg>
+            <span>Method 1: 8-Digit Pairing Code (Fast & 100% Reliable)</span>
+            <span class="badge-recommended">Recommended</span>
+          </button>
+          <button id="btnMethodQr" class="method-btn" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            <span>Method 2: Scan QR Code</span>
+          </button>
+        </div>
+
+        <div class="device-pairing-grid">
+          <!-- CARD A: PAIRING CODE CARD (ACTIVE BY DEFAULT) -->
+          <div id="pairingCodeCard" class="card qr-hero-card">
+            <div class="qr-card-header">
+              <span class="card-subtitle">INSTANT 8-DIGIT PAIRING</span>
+              <span class="badge-pro">NO CAMERA NEEDED</span>
+            </div>
+
+            <div class="pairing-code-form-wrapper">
+              <form id="formPairingCode" class="pairing-form">
+                <div class="form-group">
+                  <label for="pairingPhoneInput">Enter Your WhatsApp Mobile Number</label>
+                  <div class="phone-input-group">
+                    <span class="country-prefix">+91</span>
+                    <input type="tel" id="pairingPhoneInput" placeholder="9876543210" maxlength="12" required />
+                  </div>
+                  <p class="field-hint">Enter your 10-digit Indian WhatsApp number (e.g. 9876543210)</p>
+                </div>
+
+                <button type="submit" id="btnRequestCode" class="btn-primary full-width">
+                  <span>Get 8-Digit WhatsApp Code</span>
+                </button>
+              </form>
+
+              <!-- Display Code Box -->
+              <div id="pairingCodeResult" class="pairing-code-display-box" style="display: none;">
+                <span class="code-box-label">ENTER THIS CODE IN WHATSAPP:</span>
+                <div class="code-number-display" id="codeNumberDisplay">•••• - ••••</div>
+                <div class="code-timer-row">
+                  <span>Code expires in 2 minutes</span>
+                </div>
+              </div>
+
+              <!-- Steps for Pairing Code -->
+              <div class="qr-instruction-steps">
+                <div class="step-item">
+                  <span class="step-num">1</span>
+                  <span>On your phone: Open <strong>WhatsApp</strong> > <strong>Linked Devices</strong> > <strong>Link a Device</strong></span>
+                </div>
+                <div class="step-item">
+                  <span class="step-num">2</span>
+                  <span>At the bottom of the scanner screen, tap <strong>"Link with phone number instead"</strong></span>
+                </div>
+                <div class="step-item">
+                  <span class="step-num">3</span>
+                  <span>Enter the <strong>8-digit code</strong> shown above to connect instantly!</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD B: QR CODE HERO CARD -->
+          <div id="pairingQrCard" class="card qr-hero-card" style="display: none;">
+            <div class="qr-card-header">
+              <span class="card-subtitle">SCAN QR CODE</span>
+              <button id="btnForceRefreshQr" class="btn-tag" type="button" title="Generate fresh QR code">🔄 Refresh Code</button>
+            </div>
+
+            <div class="qr-display-area">
+              <div id="qrLoadingSpinner" class="qr-spinner-wrapper">
+                <div class="spinner"></div>
+                <p>Generating secure WhatsApp pairing QR...</p>
+              </div>
+
+              <div id="qrImageContainer" class="qr-frame" style="display: none;">
+                <img id="qrImage" src="" alt="WhatsApp Web Pairing QR Code" />
+                <div class="qr-corner-decor tl"></div>
+                <div class="qr-corner-decor tr"></div>
+                <div class="qr-corner-decor bl"></div>
+                <div class="qr-corner-decor br"></div>
+              </div>
+
+              <div id="connectedStateContainer" class="connected-state-wrapper" style="display: none;">
+                <div class="connected-icon-box">
+                  <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#25D366" stroke-width="2.5">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                </div>
+                <h3 class="connected-title">WhatsApp Linked & Online</h3>
+                <p class="connected-number" id="connectedPhoneDisplay">+91 ••••• •••••</p>
+                <div class="coexistence-badge">
+                  <span class="coexistence-dot"></span>
+                  <span>Coexistence Active: Phone + Web Working Together</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="qr-instruction-steps">
+              <div class="step-item">
+                <span class="step-num">1</span>
+                <span>Open <strong>WhatsApp</strong> on your phone</span>
+              </div>
+              <div class="step-item">
+                <span class="step-num">2</span>
+                <span>Tap <strong>Menu (⋮)</strong> or <strong>Settings</strong> &gt; <strong>Linked Devices</strong></span>
+              </div>
+              <div class="step-item">
+                <span class="step-num">3</span>
+                <span>Point your camera at this QR code</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Connection Overview & Features Card -->
+          <div class="card feature-summary-card">
+            <h3 class="card-title">How It Works (₹0 Meta Fees)</h3>
+            <p class="card-text">
+              This engine creates a direct, sovereign multi-device WebSocket connection to WhatsApp Web servers. 
+              No Meta Business verification, no credit card billing, and no per-conversation fees required.
+            </p>
+
+            <div class="feature-bullets">
+              <div class="feature-row">
+                <div class="feat-icon-box green">✓</div>
+                <div>
+                  <strong>Session Persistence</strong>
+                  <p>Scan once; credentials are encrypted locally in <code>/sessions/default</code> so server restarts maintain connection.</p>
+                </div>
+              </div>
+
+              <div class="feature-row">
+                <div class="feat-icon-box blue">✓</div>
+                <div>
+                  <strong>Coexistence Mode</strong>
+                  <p>You can still open WhatsApp on your phone, chat normally with friends, while this software automates store receipts.</p>
+                </div>
+              </div>
+
+              <div class="feature-row">
+                <div class="feat-icon-box purple">✓</div>
+                <div>
+                  <strong>Twilio/Wati Alternative</strong>
+                  <p>Trigger alerts from Python, PHP, Next.js, or curl via standard REST endpoints.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: E-COMMERCE TRIGGERS (GoWhats Style) -->
+      <div id="tab-ecommerce" class="tab-pane" role="tabpanel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">E-Commerce Automations (GoWhats Mode)</h2>
+            <p class="panel-desc">Directly test and trigger COD verification, Order receipts, and Abandoned Cart recovery.</p>
+          </div>
+        </div>
+
+        <div class="ecommerce-grid">
+          <!-- COD Order Verification Tester -->
+          <div class="card ecom-card">
+            <div class="ecom-card-badge cod">COD FRAUD SHIELD</div>
+            <h3 class="card-title">1. Cash-on-Delivery (COD) Verification</h3>
+            <p class="card-desc">Asks customer to reply <strong>CONFIRM</strong> or <strong>CANCEL</strong> before shipping. Prevents ₹150 courier RTO losses!</p>
+
+            <form id="formCodTrigger" class="ecom-form">
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="codPhone">Recipient Phone (10 digits / +91)</label>
+                  <input type="tel" id="codPhone" placeholder="9876543210" required />
+                </div>
+                <div class="form-group">
+                  <label for="codName">Customer Name</label>
+                  <input type="text" id="codName" value="Rahul Sharma" required />
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="codOrderId">Order ID</label>
+                  <input type="text" id="codOrderId" value="ORD-8492" required />
+                </div>
+                <div class="form-group">
+                  <label for="codAmount">Total Amount (₹)</label>
+                  <input type="number" id="codAmount" value="799" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="codAddress">Delivery Address</label>
+                <textarea id="codAddress" rows="2" required>Flat 302, Green Park Apartments, Bengaluru, 560038</textarea>
+              </div>
+
+              <button type="submit" id="btnSendCod" class="btn-primary">
+                <span>Trigger COD Verification Message</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Order Confirmation Tester -->
+          <div class="card ecom-card">
+            <div class="ecom-card-badge receipt">ORDER RECEIPT</div>
+            <h3 class="card-title">2. Instant WhatsApp Order Receipt</h3>
+            <p class="card-desc">Sends itemized invoice details and live tracking link as soon as checkout completes.</p>
+
+            <form id="formReceiptTrigger" class="ecom-form">
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="receiptPhone">Customer Phone</label>
+                  <input type="tel" id="receiptPhone" placeholder="9876543210" required />
+                </div>
+                <div class="form-group">
+                  <label for="receiptName">Customer Name</label>
+                  <input type="text" id="receiptName" value="Sneha Patel" required />
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="receiptOrderId">Order ID</label>
+                  <input type="text" id="receiptOrderId" value="ORD-9102" required />
+                </div>
+                <div class="form-group">
+                  <label for="receiptTotal">Total Paid (₹)</label>
+                  <input type="number" id="receiptTotal" value="1250" required />
+                </div>
+              </div>
+
+              <button type="submit" id="btnSendReceipt" class="btn-primary">
+                <span>Trigger Order Receipt Message</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Abandoned Cart Tester -->
+          <div class="card ecom-card full-span">
+            <div class="ecom-card-badge cart">CART RECOVERY</div>
+            <h3 class="card-title">3. Abandoned Cart Recovery (1-Tap Buy Link)</h3>
+            <p class="card-desc">Sends a high-converting reminder 30 minutes after cart abandonment with a discount coupon.</p>
+
+            <form id="formCartTrigger" class="ecom-form">
+              <div class="form-row-3">
+                <div class="form-group">
+                  <label for="cartPhone">Customer Phone</label>
+                  <input type="tel" id="cartPhone" placeholder="9876543210" required />
+                </div>
+                <div class="form-group">
+                  <label for="cartName">Customer Name</label>
+                  <input type="text" id="cartName" value="Kiran Kumar" required />
+                </div>
+                <div class="form-group">
+                  <label for="cartCoupon">Discount Code</label>
+                  <input type="text" id="cartCoupon" value="EXTRA10" required />
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="cartItems">Cart Items Summary</label>
+                  <input type="text" id="cartItems" value="Executive Hardbound Journal + Calligraphy Pen Set" required />
+                </div>
+                <div class="form-group">
+                  <label for="cartLink">1-Tap Checkout Link</label>
+                  <input type="url" id="cartLink" value="http://localhost:3000/cart?coupon=EXTRA10" required />
+                </div>
+              </div>
+
+              <button type="submit" id="btnSendCart" class="btn-primary">
+                <span>Trigger Cart Recovery Message</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Store Integration Guide Box -->
+        <div class="card code-snippet-card">
+          <div class="snippet-header">
+            <div>
+              <h3 class="card-title">Connect Paps Stationery Store (10 Lines of Code)</h3>
+              <p class="card-desc">Add this snippet into <code>paps stationary store/app/api/cart/checkout/route.js</code></p>
+            </div>
+            <button id="btnCopyStoreCode" class="btn-secondary">Copy Snippet</button>
+          </div>
+          <pre class="code-block"><code id="storeIntegrationSnippet">// Trigger WhatsApp Order Confirmation automatically upon checkout
+await fetch('http://localhost:5001/api/templates/order-receipt', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    phone: user.phone || '919876543210',
+    customerName: user.name || 'Valued Customer',
+    orderId: 'ORD-' + Date.now().toString().slice(-6),
+    items: itemsToCheck.map(i => ({ name: 'Stationery Item #' + i.id, qty: i.qty, price: 150 })),
+    total: 450,
+    storeName: 'Paps Stationery Store'
+  })
+});</code></pre>
+        </div>
+      </div>
+
+      <!-- TAB 3: BULK BROADCASTER (Anti-Ban Engine) -->
+      <div id="tab-campaign" class="tab-pane" role="tabpanel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Safe Bulk Broadcaster (Anti-Ban Pacing)</h2>
+            <p class="panel-desc">Broadcast festive discounts and announcements to previous customers with randomized intervals.</p>
+          </div>
+        </div>
+
+        <div class="campaign-grid">
+          <!-- Setup Form -->
+          <div class="card campaign-setup-card">
+            <h3 class="card-title">Campaign Configuration</h3>
+
+            <form id="formCampaign" class="campaign-form">
+              <div class="form-group">
+                <label for="campName">Campaign Name</label>
+                <input type="text" id="campName" value="Diwali Special VIP Offer" required />
+              </div>
+
+              <div class="form-group">
+                <div class="label-with-badge">
+                  <label for="campContacts">Recipient Contacts (Phone & Name)</label>
+                  <span id="contactCountBadge" class="badge-pro">3 Contacts Detected</span>
+                </div>
+                <div class="contacts-toolbar">
+                  <div class="tags-hint">
+                    <span>Insert in Message:</span>
+                    <button type="button" class="btn-tag" data-insert="{{name}}">{{name}}</button>
+                    <button type="button" class="btn-tag" data-insert="{{discount}}">{{discount}}</button>
+                    <button type="button" class="btn-tag" data-insert="{{link}}">{{link}}</button>
+                  </div>
+                  <div class="quick-helpers">
+                    <button type="button" id="btnSampleContacts" class="btn-tag">📋 Sample</button>
+                    <button type="button" id="btnClearContacts" class="btn-tag">🧹 Clear</button>
+                  </div>
+                </div>
+                <textarea id="campContacts" rows="4" placeholder="Paste simply as Phone, Name on each line (or copy columns directly from Excel):&#10;9791356364, Tamil Kavi&#10;8148339677, Pooja Sharma&#10;7708006124, Harish Narayanan" required>9791356364, Tamil Kavi
+8148339677, Pooja Sharma
+7708006124, Harish Narayanan</textarea>
+                <p class="field-hint">💡 <strong>No JSON needed!</strong> Just paste <code>Phone, Name</code> on each line or copy directly from Excel / Google Sheets.</p>
+
+                <!-- Extracted Contacts Live Preview -->
+                <div id="contactsPreviewBox" class="contacts-preview-box">
+                  <span class="preview-box-title">EXTRACTED RECIPIENTS PREVIEW:</span>
+                  <div id="contactsPreviewList" class="contacts-preview-list"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="campTemplate">Message Template</label>
+                <textarea id="campTemplate" rows="5" required>🪔 *Happy Diwali & Festive Greetings from Paps Stationery!* ✨
+
+Hi *{{name}}*,
+As a thank-you for shopping with us, here is an exclusive festive gift:
+🎁 *Get Flat {{discount}} on all Journals & Art Sets*
+🏷️ Use Coupon Code: *DIWALI20*
+
+👉 Shop festive offers: {{link}}
+
+_(Save our number for order tracking. Reply STOP to opt out)_</textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="campPoster">Attach Promotional Banner / Photo (Optional)</label>
+                <input type="file" id="campPoster" accept="image/*" />
+              </div>
+
+              <div class="form-group">
+                <div class="slider-label-row">
+                  <label for="campDelay">Anti-Ban Pacing Interval</label>
+                  <span id="delayDisplay" class="slider-val">20 - 35 seconds</span>
+                </div>
+                <input type="range" id="campDelay" min="10" max="60" value="25" class="range-slider" />
+                <p class="field-hint">Randomized delays mimic authentic human typing, protecting your WhatsApp number from automated velocity flags.</p>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" id="btnStartCampaign" class="btn-primary">
+                  <span>🚀 Launch Safe Campaign</span>
+                </button>
+                <button type="button" id="btnCancelCampaign" class="btn-danger-outline" style="display: none;">
+                  <span>Stop Campaign</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Campaign Monitor / Live Status -->
+          <div class="card campaign-monitor-card">
+            <h3 class="card-title">Live Campaign Monitor</h3>
+            
+            <div class="campaign-metrics-row">
+              <div class="metric-card">
+                <span class="metric-num" id="metricTotal">0</span>
+                <span class="metric-label">TOTAL</span>
+              </div>
+              <div class="metric-card green">
+                <span class="metric-num" id="metricSent">0</span>
+                <span class="metric-label">SENT</span>
+              </div>
+              <div class="metric-card red">
+                <span class="metric-num" id="metricFailed">0</span>
+                <span class="metric-label">FAILED</span>
+              </div>
+            </div>
+
+            <div class="progress-wrapper">
+              <div class="progress-bar-bg">
+                <div id="campaignProgressBar" class="progress-bar-fill" style="width: 0%;"></div>
+              </div>
+              <div class="progress-info-row">
+                <span id="campaignProgressText">No campaign running</span>
+                <span id="campaignPercentText">0%</span>
+              </div>
+            </div>
+
+            <h4 class="logs-header">Live Execution Logs</h4>
+            <div id="campaignLogsFeed" class="campaign-logs-feed">
+              <p class="empty-state">No broadcast started yet. Configure contacts and hit Launch!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: QUICK SEND & MEDIA -->
+      <div id="tab-send" class="tab-pane" role="tabpanel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Quick Send & Media Dispatcher</h2>
+            <p class="panel-desc">Test sending instant text messages or image attachments with live mobile preview.</p>
+          </div>
+        </div>
+
+        <div class="quicksend-grid">
+          <div class="card form-card">
+            <h3 class="card-title">Compose Direct Message</h3>
+
+            <form id="formQuickSend" class="standard-form">
+              <div class="form-group">
+                <label for="quickPhone">Recipient Phone Number (with or without 91)</label>
+                <input type="tel" id="quickPhone" placeholder="9876543210" required />
+              </div>
+
+              <div class="form-group">
+                <label for="quickMessage">Message Text</label>
+                <textarea id="quickMessage" rows="4" placeholder="Type your WhatsApp message here..." required>Hello from WA-Hub! 🚀 Your order is being processed.</textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="quickMedia">Attach Image / Photo (Optional)</label>
+                <input type="file" id="quickMedia" accept="image/*" />
+              </div>
+
+              <button type="submit" id="btnQuickSend" class="btn-primary">
+                <span>Send WhatsApp Message</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- WhatsApp Chat Preview Mockup -->
+          <div class="card preview-card">
+            <h3 class="card-title">Live Chat Preview</h3>
+            <div class="phone-mockup">
+              <div class="phone-speaker"></div>
+              <div class="phone-screen">
+                <div class="mockup-header">
+                  <div class="mockup-avatar">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <div>
+                    <h5 class="mockup-sender">Paps Stationery Store</h5>
+                    <span class="mockup-online">online</span>
+                  </div>
+                </div>
+
+                <div class="mockup-chat-body">
+                  <div class="chat-bubble outgoing">
+                    <div id="mockupMediaPreview" style="display: none;" class="mockup-img-wrapper">
+                      <img id="mockupImgTag" src="" alt="attachment preview" />
+                    </div>
+                    <p id="mockupTextPreview">Hello from WA-Hub! 🚀 Your order is being processed.</p>
+                    <span class="chat-timestamp" id="mockupTime">12:30 PM • ✓✓</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: LIVE INBOX & LOGS -->
+      <div id="tab-inbox" class="tab-pane" role="tabpanel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Live Message Logs & Customer Replies</h2>
+            <p class="panel-desc">Real-time incoming customer responses (e.g. COD CONFIRM / CANCEL) and outbound records.</p>
+          </div>
+          <button id="btnRefreshLogs" class="btn-secondary">Refresh Logs</button>
+        </div>
+
+        <div class="card inbox-card">
+          <div id="inboxList" class="inbox-list">
+            <div class="empty-state">
+              <p>No messages logged yet. Pair device and send a message to see logs here.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 6: DEVELOPER API -->
+      <div id="tab-api" class="tab-pane" role="tabpanel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Developer REST API Reference</h2>
+            <p class="panel-desc">Integrate WhatsApp messaging into any e-commerce platform, CRM, or backend microservice.</p>
+          </div>
+        </div>
+
+        <div class="api-docs-grid">
+          <!-- cURL Send Message -->
+          <div class="card code-doc-card">
+            <div class="doc-header">
+              <span class="http-badge post">POST</span>
+              <code>http://localhost:5001/api/send</code>
+            </div>
+            <p class="doc-desc">Send plain text message to any phone number.</p>
+            <pre class="code-block"><code>curl -X POST http://localhost:5001/api/send \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "919876543210",
+    "message": "Hello from API! Your order is ready."
+  }'</code></pre>
+          </div>
+
+          <!-- E-Commerce COD Confirm API -->
+          <div class="card code-doc-card">
+            <div class="doc-header">
+              <span class="http-badge post">POST</span>
+              <code>http://localhost:5001/api/templates/cod-confirm</code>
+            </div>
+            <p class="doc-desc">Triggers structured COD verification message.</p>
+            <pre class="code-block"><code>curl -X POST http://localhost:5001/api/templates/cod-confirm \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "9876543210",
+    "customerName": "Rahul Sharma",
+    "orderId": "1049",
+    "amount": 899,
+    "address": "42 MG Road, Bengaluru"
+  }'</code></pre>
+          </div>
+
+          <!-- JavaScript Fetch Example -->
+          <div class="card code-doc-card full-span">
+            <div class="doc-header">
+              <span class="doc-lang-tag">Node.js / Browser (Fetch)</span>
+            </div>
+            <pre class="code-block"><code>const response = await fetch('http://localhost:5001/api/send', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    phone: '919876543210',
+    message: 'Your order #1082 is out for delivery! 🚚'
+  })
+});
+const data = await response.json();
+console.log('WhatsApp Message Status:', data);</code></pre>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Notification Toast Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
